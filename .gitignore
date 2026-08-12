@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+
+# BlenderProc laster ned egen Blender-binær hit ved første kjøring
+blenderproc_resources/
+
+# Store binærfiler / genererte data
+assets/models/*.blend
+assets/hdris/
+output/
+
+# Miljø / IDE
+.vscode/
+.conda/
