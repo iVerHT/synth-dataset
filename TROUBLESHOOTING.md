@@ -30,8 +30,6 @@ skrevne kode (i denne versjonen av pakken) forutsetter.
 
 ```
 <conda-envs>\bproc\lib\site-packages\blenderproc\python\writer\CocoWriterUtility.py
-
-eg: code "Q:\YOLO_ML_learning\envs\bproc\lib\site-packages\blenderproc\python\writer\CocoWriterUtility.py"
 ```
 
 Finn linjen (rundt linje 400):
@@ -100,7 +98,36 @@ Lukk hele terminalvinduet (ikke bare fanen) og åpne et nytt. Bekreft med f.eks.
 
 ---
 
-## 4. `conda env export --from-history` mangler pip-pakker
+## 4. Category-navn i COCO-output blir et tall (`category_id`) i stedet for objektnavnet
+
+**Symptom:**
+
+```json
+"categories": [{"id": 1, "supercategory": "coco_annotations", "name": 1}]
+```
+
+... selv om `obj.set_name("shape")` er satt på objektet.
+
+**Årsak:**
+
+`write_coco_annotations` henter category-navnet fra `instance_attribute_maps`, som kun
+inneholder de attributtene som er bedt om via `map_by` i
+`bproc.renderer.enable_segmentation_output(...)`. Uten `"name"` i denne lista faller
+writeren tilbake på å bruke `category_id`-tallet som navn.
+
+I tillegg: offisiell BlenderProc-dokumentasjon bruker nøkkelordet `"class"` (ikke
+`"category_id"`) i `map_by` for å hente ut kategori-informasjon — `"class"` mappes
+internt til `category_id`-feltet i output.
+
+**Fiks:**
+
+```python
+bproc.renderer.enable_segmentation_output(map_by=["class", "instance", "name"])
+```
+
+---
+
+## 5. `conda env export --from-history` mangler pip-pakker
 
 **Symptom:**
 
