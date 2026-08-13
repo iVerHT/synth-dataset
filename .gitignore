@@ -9,6 +9,7 @@ blenderproc_resources/
 # Store binærfiler / genererte data
 assets/models/*.blend
 assets/hdris/
+assets/hdris_raw/
 output/
 
 # Miljø / IDE
