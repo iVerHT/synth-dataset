@@ -48,8 +48,8 @@ def visualize_yolo_labels(images_dir, labels_dir, class_names, num_samples=1):
 class_names = ["Ditt objekt"]
 
 visualize_yolo_labels(
-    images_dir="Q:\SYNTH-DATASET\output\coco_data\images",
-    labels_dir="Q:\SYNTH-DATASET\output\coco_data\labels",
+    images_dir="Q:\SYNTH-DATASET\output\merged\images",
+    labels_dir="Q:\SYNTH-DATASET\output\merged\yolo\labels",
     class_names=class_names,
-    num_samples=3
+    num_samples=40
 )

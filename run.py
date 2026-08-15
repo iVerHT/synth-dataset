@@ -19,6 +19,7 @@ def run_generate():
         "--output_root", CONFIG["paths"]["shards_root"],
         "--base_seed", str(gen["seed"]),
         "--max_parallel", str(gen["max_parallel"]),
+        "--negative_prob", str(gen.get("negative_prob", 0.1)),
     ], check=True)
 
 
@@ -43,12 +44,24 @@ def run_convert():
 def run_download_hdris():
     subprocess.run([sys.executable, "src/download_hdris.py"], check=True)
 
+def run_split():
+    split_cfg = CONFIG["split"]
+    merged = Path(CONFIG["paths"]["merged_dir"])
+    subprocess.run([
+        sys.executable, "src/split_dataset.py",
+        "--coco_json", str(merged / "coco" / "coco_annotations.json"),
+        "--images_dir", str(merged / "images"),
+        "--output_dir", CONFIG["paths"]["dataset_dir"],
+        "--val_ratio", str(split_cfg["val_ratio"]),
+        "--seed", str(split_cfg["seed"]),
+    ], check=True)
 
 STEP_FUNCTIONS = {
     "download-hdris": run_download_hdris,
     "generate": run_generate,
     "merge": run_merge,
     "convert": run_convert,
+    "split": run_split,
 }
 
 

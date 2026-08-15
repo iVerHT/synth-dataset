@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--num_images", type=int, default=10)
 parser.add_argument("--output_dir", type=str, default="output/coco_data")
 parser.add_argument("--seed", type=int, default=None)
+parser.add_argument("--negative_prob", type=float, default=0.1)
 args = parser.parse_args()
 
 if args.seed is not None:
@@ -105,14 +106,19 @@ for img_idx in range(args.num_images):
     bproc.utility.reset_keyframes()
 
     # Velg tilfeldig antall aktive instanser per kategori, parker resten
+    # Parker alle mål-objekter, aktiver kun hvis dette IKKE er et negativt bilde
+    all_target_objs_flat = [o for objs in target_pool.values() for o in objs]
+    park_unused(all_target_objs_flat)
+
+    is_negative = random.random() < args.negative_prob
     active_targets = []
-    for cat_id, instances in target_pool.items():
-        min_inst = categories[cat_id].get("min_instances", 1)
-        max_inst = categories[cat_id].get("max_instances", 1)
-        num_active = random.randint(min_inst, max_inst)
-        chosen = random.sample(instances, num_active)
-        park_unused([o for o in instances if o not in chosen])
-        active_targets.extend(chosen)
+    if not is_negative:
+        for cat_id, instances in target_pool.items():
+            min_inst = categories[cat_id].get("min_instances", 1)
+            max_inst = categories[cat_id].get("max_instances", 1)
+            num_active = random.randint(min_inst, max_inst)
+            chosen = random.sample(instances, num_active)
+            active_targets.extend(chosen)
 
     num_active_distractors = random.randint(3, MAX_DISTRACTORS)
     active_distractors = random.sample(distractor_pool, num_active_distractors)
