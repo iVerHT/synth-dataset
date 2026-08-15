@@ -51,5 +51,5 @@ visualize_yolo_labels(
     images_dir="Q:\SYNTH-DATASET\output\coco_data\images",
     labels_dir="Q:\SYNTH-DATASET\output\coco_data\labels",
     class_names=class_names,
-    num_samples=1
+    num_samples=3
 )

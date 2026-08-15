@@ -1,9 +1,6 @@
 import json
 import os
-
-COCO_JSON = "output/coco_data/coco_annotations.json"
-YOLO_LABELS_DIR = "output/coco_data/labels"   # ligger ved siden av images/ som BlenderProc allerede lagde
-CLASSES_TXT = "output/coco_data/classes.txt"
+import argparse
 
 
 def coco_to_yolo(coco_json_path, yolo_labels_dir, classes_txt_path):
@@ -14,7 +11,6 @@ def coco_to_yolo(coco_json_path, yolo_labels_dir, classes_txt_path):
 
     images = {img["id"]: img for img in coco["images"]}
 
-    # Kategori-id -> 0-indeksert YOLO-klasseindeks, sortert på id for konsistent rekkefølge
     categories = sorted(coco["categories"], key=lambda c: c["id"])
     cat_id_to_yolo_idx = {cat["id"]: idx for idx, cat in enumerate(categories)}
 
@@ -35,7 +31,7 @@ def coco_to_yolo(coco_json_path, yolo_labels_dir, classes_txt_path):
 
         lines = []
         for ann in anns_by_image.get(image_id, []):
-            x, y, w, h = ann["bbox"]  # COCO: absolutt piksel, [x_topleft, y_topleft, w, h]
+            x, y, w, h = ann["bbox"]
             x_center = (x + w / 2) / img_w
             y_center = (y + h / 2) / img_h
             w_norm = w / img_w
@@ -43,7 +39,6 @@ def coco_to_yolo(coco_json_path, yolo_labels_dir, classes_txt_path):
             yolo_idx = cat_id_to_yolo_idx[ann["category_id"]]
             lines.append(f"{yolo_idx} {x_center:.6f} {y_center:.6f} {w_norm:.6f} {h_norm:.6f}")
 
-        # Tom fil (ingen linjer) er gyldig YOLO-konvensjon for bilder uten objekter
         with open(label_path, "w") as f:
             f.write("\n".join(lines))
 
@@ -52,4 +47,10 @@ def coco_to_yolo(coco_json_path, yolo_labels_dir, classes_txt_path):
 
 
 if __name__ == "__main__":
-    coco_to_yolo(COCO_JSON, YOLO_LABELS_DIR, CLASSES_TXT)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--coco_json", type=str, default="output/merged/coco/coco_annotations.json")
+    parser.add_argument("--yolo_labels_dir", type=str, default="output/merged/yolo/labels")
+    parser.add_argument("--classes_txt", type=str, default="output/merged/yolo/classes.txt")
+    args = parser.parse_args()
+
+    coco_to_yolo(args.coco_json, args.yolo_labels_dir, args.classes_txt)

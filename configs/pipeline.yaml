@@ -1,0 +1,14 @@
+paths:
+  shards_root: output/shards
+  merged_dir: output/merged
+
+generate:
+  shards: 50
+  images_per_shard: 200
+  seed: 0
+  max_parallel: 2
+
+steps:
+  - generate
+  - merge
+  - convert
