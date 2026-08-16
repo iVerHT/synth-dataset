@@ -8,6 +8,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 HDRI_ROOT = PROJECT_ROOT / "assets" / "hdris_raw" / "hdris"
+MATERIAL_ROOT = PROJECT_ROOT / "assets" / "materials_raw" / "materials"
 OBJECTS_CONFIG = PROJECT_ROOT / "configs" / "objects.yaml"
 
 parser = argparse.ArgumentParser()
@@ -68,6 +69,17 @@ print(f"Gjennomsnittlig objektstørrelse: {target_size:.3f} enheter")
 # ---------------------------------------------------------------------------
 MAX_DISTRACTORS = 8
 
+def get_random_material_image():
+    subfolders = [p for p in MATERIAL_ROOT.iterdir() if p.is_dir()]
+    if not subfolders:
+        raise RuntimeError(f"Fant ingen materialer i {MATERIAL_ROOT}")
+
+    chosen = random.choice(subfolders)
+    images = list(chosen.glob("*.png")) + list(chosen.glob("*.jpg"))
+    if not images:
+        raise RuntimeError(f"Fant ingen bildefil i {chosen}")
+
+    return images[0]
 
 def create_distractor_pool(num, reference_size):
     shapes = ["CUBE", "SPHERE", "CYLINDER", "CONE"]
@@ -79,6 +91,13 @@ def create_distractor_pool(num, reference_size):
         obj.set_cp("category_id", 0)
         obj.set_cp("is_distractor", True)
         obj.set_name(f"distractor_{i}")
+
+        texture_path = get_random_material_image()
+        material = bproc.material.create_material_from_texture(
+            str(texture_path), material_name=f"distractor_mat_{i}"
+        )
+        obj.replace_materials(material)
+        
         pool.append(obj)
     return pool
 
