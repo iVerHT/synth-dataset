@@ -44,6 +44,9 @@ def run_convert():
 def run_download_hdris():
     subprocess.run([sys.executable, "src/download_hdris.py"], check=True)
 
+def run_download_materials():
+    subprocess.run([sys.executable, "src/download_materials.py"], check=True)
+
 def run_split():
     split_cfg = CONFIG["split"]
     merged = Path(CONFIG["paths"]["merged_dir"])
@@ -58,6 +61,7 @@ def run_split():
 
 STEP_FUNCTIONS = {
     "download-hdris": run_download_hdris,
+    "download-materials": run_download_materials,
     "generate": run_generate,
     "merge": run_merge,
     "convert": run_convert,
