@@ -7,8 +7,8 @@ __pycache__/
 blenderproc_resources/
 
 # Store binærfiler / genererte data
-assets/models/*.blend
-assets/hdris/
+assets/models/
+assets/materials_raw/
 assets/hdris_raw/
 output/
 

@@ -4,13 +4,38 @@ import random
 import shutil
 
 MATERIALS_DIR = "assets/materials_raw/materials"
-NUM_MATERIALS = 10
+NUM_MATERIALS = 100
 RESOLUTION = "1k"
 
 os.makedirs(MATERIALS_DIR, exist_ok=True)
 
 session = requests.Session()
 session.headers.update({"User-Agent": "TextureDownloader/1.0 (iverhthorsberg@gmail.com)"})
+
+#  Finner alle kategorier
+
+# resp = session.get("https://api.polyhaven.com/assets?type=textures")
+# all_materials = resp.json()
+# all_categories = set()
+# for meta in all_materials.values():
+#     all_categories.update(meta.get("categories", []))
+# print(sorted(all_categories))
+
+#--------------------------------------------------------------------------------
+ALLOWED_CATEGORIES = {
+    "metal", "plastic", "wood", "raw wood", "fabric", "leather",
+    "plaster", "plaster-concrete", "man made", "indoor", "industrial",
+    "carpet", "denim", "cotton", "corduroy", "crepe", "fleece",
+    "hessian", "jacquard", "knitted", "satin", "suede", "velvet", "wool", "woven"
+}
+
+BLOCKED_CATEGORIES = {
+    "aerial", "asphalt", "bark", "cobblestone", "concrete", "dirty",
+    "floor", "food", "fur", "gravel", "natural", "outdoor", "rock",
+    "road", "sand", "sandstone", "snow", "terrain", "wall", "roofing",
+    "collection: moon", "collection: namaqualand", "collection: pine_forest",
+    "collection: smugglers_cove", "collection: the_shed", "collection: verdant_trail"
+}
 
 #
 # Rydd opp i ufullstendige nedlastinger fra tidligere kjøringer
@@ -31,10 +56,22 @@ for name in os.listdir(MATERIALS_DIR):
 
 print("Henter liste over tilgjengelige materialer...")
 resp = session.get("https://api.polyhaven.com/assets?type=textures")
-all_material_names = list(resp.json().keys())
+all_materials = resp.json()  # dict: navn -> metadata (inkl. "categories")
+
+# Filtrer: behold kun materialer som har MINST ÉN tillatt kategori
+# OG ingen blokkerte kategorier
+filtered_names = []
+for name, meta in all_materials.items():
+    categories = set(meta.get("categories", []))
+    if categories & BLOCKED_CATEGORIES:
+        continue  # inneholder en blokkert kategori — hopp over uansett
+    if categories & ALLOWED_CATEGORIES:
+        filtered_names.append(name)
+
+print(f"Fant {len(filtered_names)} materialer som matcher filteret (av {len(all_materials)} totalt)")
 
 random.seed(42)
-selected = random.sample(all_material_names, min(NUM_MATERIALS, len(all_material_names)))
+selected = random.sample(filtered_names, min(NUM_MATERIALS, len(filtered_names)))
 
 print(f"Laster ned {len(selected)} materialer i resolution {RESOLUTION}...")
 failed = []
