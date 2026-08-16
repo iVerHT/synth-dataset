@@ -1,11 +1,18 @@
-import requests
 import os
 import random
 import shutil
+import sys
+from pathlib import Path
+
+from api_utils import get_polyhaven_session
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 HDRI_DIR = "assets/hdris_raw/hdris"
-NUM_HDRIS = 300
+NUM_HDRIS = 10
 RESOLUTION = "1k"
+
+session, base_url = get_polyhaven_session()
 
 os.makedirs(HDRI_DIR, exist_ok=True)
 
@@ -20,7 +27,7 @@ for name in os.listdir(HDRI_DIR):
         shutil.rmtree(subfolder)
 
 print("Henter liste over tilgjengelige HDRIer...")
-resp = requests.get("https://api.polyhaven.com/assets?type=hdris")
+resp = session.get(f"{base_url}/assets?type=hdris")
 all_hdri_names = list(resp.json().keys())
 
 random.seed(42)
@@ -34,7 +41,7 @@ for i, name in enumerate(selected, 1):
     if os.path.exists(out_path) and os.path.getsize(out_path) > 0:
         continue
 
-    files_resp = requests.get(f"https://api.polyhaven.com/files/{name}")
+    files_resp = session.get(f"{base_url}/files/{name}")
     files = files_resp.json()
 
     try:
@@ -44,7 +51,7 @@ for i, name in enumerate(selected, 1):
         continue
 
     print(f"  [{i}/{len(selected)}] {name}")
-    r = requests.get(hdri_url)
+    r = session.get(hdri_url)
     if r.status_code != 200 or len(r.content) == 0:
         print(f"    FEIL ved nedlasting av {name} (status {r.status_code}), hopper over")
         failed.append(name)

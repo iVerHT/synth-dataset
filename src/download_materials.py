@@ -1,16 +1,19 @@
-import requests
 import os
 import random
 import shutil
+from pathlib import Path
+import sys
+from api_utils import get_polyhaven_session
 
 MATERIALS_DIR = "assets/materials_raw/materials"
-NUM_MATERIALS = 100
+NUM_MATERIALS = 10
 RESOLUTION = "1k"
 
 os.makedirs(MATERIALS_DIR, exist_ok=True)
 
-session = requests.Session()
-session.headers.update({"User-Agent": "TextureDownloader/1.0 (iverhthorsberg@gmail.com)"})
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+session, base_url = get_polyhaven_session()
 
 #  Finner alle kategorier
 
@@ -55,7 +58,7 @@ for name in os.listdir(MATERIALS_DIR):
         shutil.rmtree(subfolder)
 
 print("Henter liste over tilgjengelige materialer...")
-resp = session.get("https://api.polyhaven.com/assets?type=textures")
+resp = session.get(f"{base_url}/assets?type=textures")
 all_materials = resp.json()  # dict: navn -> metadata (inkl. "categories")
 
 # Filtrer: behold kun materialer som har MINST ÉN tillatt kategori
@@ -85,7 +88,7 @@ for i, name in enumerate(selected, 1):
        (os.path.exists(jpg_path) and os.path.getsize(jpg_path) > 0):
         continue
 
-    files_resp = session.get(f"https://api.polyhaven.com/files/{name}")
+    files_resp = session.get(f"{base_url}/files/{name}")
     files = files_resp.json()
 
     try:

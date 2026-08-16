@@ -1,0 +1,3 @@
+polyhaven:
+  user_agent: "SynthDatasetPipeline/1.0 (iverhthorsberg@gmail.com)"
+  base_url: "https://api.polyhaven.com"
