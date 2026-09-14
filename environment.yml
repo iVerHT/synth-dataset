@@ -10,4 +10,4 @@ dependencies:
   - pip
   - pip:
       - blenderproc==2.8.0
-prefix: Q:\YOLO_ML_learning\envs\blenderproc
+
