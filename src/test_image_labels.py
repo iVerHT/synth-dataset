@@ -2,6 +2,11 @@ import cv2
 import os
 import random
 
+from pathlib import Path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+IMAGES_ROOT = PROJECT_ROOT / "output" / "dataset" / "images" / "train"
+LAEBLS_ROOT = PROJECT_ROOT / "output" / "dataset" / "labels" / "train"
+
 def visualize_yolo_labels(images_dir, labels_dir, class_names, num_samples=1):
     image_files = [f for f in os.listdir(images_dir) if f.lower().endswith(('.jpg', '.png', '.jpeg'))]
     samples = random.sample(image_files, min(num_samples, len(image_files)))
@@ -48,8 +53,8 @@ def visualize_yolo_labels(images_dir, labels_dir, class_names, num_samples=1):
 class_names = ["Ditt objekt"]
 
 visualize_yolo_labels(
-    images_dir=r"Q:\SYNTH-DATASET\output\dataset\images\train",
-    labels_dir=r"Q:\SYNTH-DATASET\output\dataset\labels\train",
+    images_dir=IMAGES_ROOT,
+    labels_dir=LAEBLS_ROOT,
     class_names=class_names,
     num_samples=40
 )
